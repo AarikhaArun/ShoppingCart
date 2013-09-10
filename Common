@@ -1,0 +1,94 @@
+using System.Collections.Generic;
+using NUnit.Framework;
+using System.Linq;
+
+namespace ShoppingCart.Tests
+{
+    [TestFixture]
+    public class ShoppingCartTests
+    {
+        [Test]
+        public void ShouldAddItemsToTheBasket()
+        {
+            var basket = new Basket();
+            var item2 = new Item { NoOfProducts = 2, PriceOfProduct = "3", ProductName = "Milk" };
+
+            var count = basket.AddItemsToTheBasket(item2).Count;
+          
+            Assert.That(count, Is.EqualTo(1));
+
+        }
+
+
+
+        [Test]
+        public void ShouldIncrementTheCountOfNoOfProductsWhenSameItemAdded()
+        {
+            //use mock
+            var item2 = new Item { ProductName = "Butter", PriceOfProduct = "3", NoOfProducts = 2 };
+            var item3 = new Item { ProductName = "Butter", PriceOfProduct = "2", NoOfProducts = 2 };
+
+            var basket = new Basket();
+
+            var listOfItems = basket.AddItemsToTheBasket(item3);
+            Assert.That(listOfItems.Count, Is.EqualTo(1));
+
+            listOfItems = basket.AddItemsToTheBasket(item2);
+            var listItem = listOfItems.FirstOrDefault(l => l.ProductName == item2.ProductName);
+            if (listItem != null)
+            Assert.That(listItem.NoOfProducts,Is.EqualTo(item3.NoOfProducts));
+            Assert.That(listOfItems.Count,Is.EqualTo(1));
+            
+        }
+    }
+
+    
+
+    public class Basket :IBasket
+    {
+        private IList<Item> list;
+
+        public Basket()
+        {
+            list = new List<Item>();
+        }
+        public IList<Item> AddItemsToTheBasket(Item items)
+        {
+            if (items != null)
+            {
+                var listItem = list.FirstOrDefault(l => l.ProductName == items.ProductName);
+                if (listItem == null)
+                {
+                  list.Add(items);
+                }
+                if (listItem != null) listItem.NoOfProducts = items.NoOfProducts + listItem.NoOfProducts;
+            }
+              return list;
+        }
+    }
+
+    public interface IBasket
+    {
+        IList<Item> AddItemsToTheBasket(Item item);
+    }
+
+    public class Item
+    {
+
+        private string _priceOfProduct;
+
+        public int NoOfProducts { get; set; }
+
+        public string PriceOfProduct
+        {
+            get { return _priceOfProduct; }
+            set { _priceOfProduct = value + "£"; }
+        }
+
+        public string ProductName { get; set; }
+
+    }
+
+
+
+}
